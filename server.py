@@ -87,7 +87,12 @@ def recipe(ingredient):
 # Add another endpoint:
 # Route "/recipe/<ingredient>/json" should return a JSON with the output of `get_recipe_for`.
 # Hint: `flask.jsonify()`
-
+@app.route("/recipe/<ingredient>/json")
+def recipe_json(ingredient):
+    """
+    Returns a JSON with a random recipe for a given main ingredient.
+    """
+    return jsonify(get_recipe_for(ingredient))
 
 # BONUS:
 # Add these endpoints:
