@@ -70,6 +70,7 @@ def index():
 
 # YOUR CODE HERE:
 # Make this endpoint get called when for the following routes: "/recipe/<ingredient>"
+@app.route("/recipe/<ingredient>")
 def recipe(ingredient):
     """
     Renders and returns an HTML page with a random recipe for a given main ingredient.
