@@ -115,6 +115,24 @@ def validate_recipe(data) -> str | None:
     return None
 
 
+def find_recipe(ingredient: str) -> dict | None:
+    """
+    Return a random recipe that contains `ingredient`,
+    from the personal list or TheMealDB.
+    Returns None if neither has one.
+    """
+    wanted = normalize(ingredient)
+    personal_matches = [
+        saved_recipe for saved_recipe in load_personal_recipes()
+        if wanted in map(normalize, saved_recipe["ingredients"])
+    ]
+    api_recipe = get_recipe_for(ingredient)
+    candidates = personal_matches + ([api_recipe] if api_recipe else [])
+    if not candidates:
+        return None
+    return random.choice(candidates)
+
+
 @app.route('/')
 def index():
     """
@@ -129,7 +147,7 @@ def recipe(ingredient):
     Renders and returns an HTML page with a random recipe
     for a given main ingredient.
     """
-    found = get_recipe_for(ingredient)
+    found = find_recipe(ingredient)
     if found is None:
         abort(404, description=f"No recipe found with '{ingredient}'.")
     return render_template("recipe.html",
@@ -142,7 +160,7 @@ def recipe_json(ingredient):
     """
     Returns a JSON with a random recipe for a given main ingredient.
     """
-    found = get_recipe_for(ingredient)
+    found = find_recipe(ingredient)
     if found is None:
         abort(404, description=f"No recipe found with '{ingredient}'.")
     return jsonify(found)
