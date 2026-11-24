@@ -1,7 +1,7 @@
 import random
 
 import requests
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, abort
 
 app = Flask(__name__)
 
@@ -68,31 +68,28 @@ def index():
     return render_template("index.html")
 
 
-# YOUR CODE HERE:
-# Make this endpoint get called when for the following routes: "/recipe/<ingredient>"
 @app.route("/recipe/<ingredient>")
 def recipe(ingredient):
     """
-    Renders and returns an HTML page with a random recipe for a given main ingredient.
+    Renders and returns an HTML page with a random recipe
+    for a given main ingredient.
     """
-    # BONUS:
-    # If there are no meals for a given ingredient, return a 404 NOT FOUND error response.
-    # Hint: Read the documentation of flask. This is a bonus :P
+    found = get_recipe_for(ingredient)
+    if found is None:
+        abort(404, description=f"No recipe found with '{ingredient}'.")
     return render_template("recipe.html",
                            ingredient=ingredient,
-                           recipe=get_recipe_for(ingredient))
+                           recipe=found)
 
-
-# YOU CODE HERE:
-# Add another endpoint:
-# Route "/recipe/<ingredient>/json" should return a JSON with the output of `get_recipe_for`.
-# Hint: `flask.jsonify()`
 @app.route("/recipe/<ingredient>/json")
 def recipe_json(ingredient):
     """
     Returns a JSON with a random recipe for a given main ingredient.
     """
-    return jsonify(get_recipe_for(ingredient))
+    found = get_recipe_for(ingredient)
+    if found is None:
+        abort(404, description=f"No recipe found with '{ingredient}'.")
+    return jsonify(found)
 
 # BONUS:
 # Add these endpoints:
@@ -105,7 +102,6 @@ def recipe_json(ingredient):
 #    - Hint 3: Use `requests` to check if it works.
 # 2. "/personal/<name>/<int:json>" with GET method:
 #    - Returns the recipe page if `json == 0`, or a JSON if `json == 1`.
-#    - Return a 404 response for flag values other than 0 or 1.
 # 3. "/personal/<name>" with DELETE method:
 #    - Delete the recipe with the given name
 # 4. "/personal/all" with GET method:
